@@ -21,6 +21,7 @@ export default function PlacesCarousel({navigation}: {navigation: any}) {
                 snapToInterval={CARD_WIDTH + CARD_MARGIN}
                 snapToAlignment="center"
             >
+                {/*----*/}
                 {/* Nine Arch Bridge Card */}
                 <TouchableOpacity
                     style={styles.card}
@@ -64,7 +65,7 @@ export default function PlacesCarousel({navigation}: {navigation: any}) {
                         <Text style={styles.placeName}>Horton Place</Text>
                         <View style={styles.locationRow}>
                             <MaterialIcons name="location-on" size={16} color="white" />
-                            <Text style={styles.locationText}>Nuwara Elle</Text>
+                            <Text style={styles.locationText}>Nuwara Eliya</Text>
                         </View>
                         <View style={styles.ratingRow}>
                             <MaterialIcons name="star" size={16} color="white" />
@@ -72,6 +73,7 @@ export default function PlacesCarousel({navigation}: {navigation: any}) {
                         </View>
                     </View>
                 </TouchableOpacity>
+                {/*----*/}
             </ScrollView>
         </View>
     )

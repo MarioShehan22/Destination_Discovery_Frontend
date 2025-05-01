@@ -1,15 +1,16 @@
-import {View, StyleSheet, ScrollView, TouchableOpacity, Image} from 'react-native';
+import { View, StyleSheet, ScrollView, TouchableOpacity, Image } from 'react-native';
 import { Text, TextInput } from 'react-native-paper';
 import { useState } from 'react';
 import {Color} from "@/constants/Colors";
+import axios from "axios";
 import getBaseUrl from "@/constants/BASEURL";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import axios from 'axios';
 
-export default function LoginScreen({navigation}:any) {
+export default function GuideLoginScreen({navigation}:any) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordVisible, setPasswordVisible] = useState(false);
+
     const handleLogin = async () => {
         try {
             const response = await axios.post(`${getBaseUrl()}users/login`, {
@@ -20,7 +21,7 @@ export default function LoginScreen({navigation}:any) {
                 console.log(response.data.payload.user);
                 await AsyncStorage.setItem('token', response.data.token);
                 await AsyncStorage.setItem('user', JSON.stringify(response.data.payload.user));
-                navigation.navigate('Process');
+                navigation.navigate('GuideProcess');
             }
         } catch (e) {
             console.log(e);
@@ -29,13 +30,8 @@ export default function LoginScreen({navigation}:any) {
     return (
         <ScrollView style={styles.container}>
             <View style={styles.logoWrapper}>
-                <Text style={styles.headerText}>Log In</Text>
+                <Text style={styles.headerText}>Guide Log In</Text>
             </View>
-            <TouchableOpacity style={styles.logoWrapper}
-                onPress={() => navigation.navigate('GuideLogin')}
-            >
-                <Text style={{...styles.headerText, fontSize: 18}}>Log In As Guide</Text>
-            </TouchableOpacity>
             <View style={styles.content}>
                 <View style={styles.formGroup}>
                     <View style={styles.inputContainer}>
@@ -77,11 +73,8 @@ export default function LoginScreen({navigation}:any) {
                         />
                     </View>
                 </View>
-                <TouchableOpacity style={styles.loginButton}>
-                    <Text
-                        style={styles.loginButtonText}
-                        onPress={()=>{handleLogin()}}
-                    >Log in</Text>
+                <TouchableOpacity style={styles.loginButton} onPress={()=>{handleLogin()}}>
+                    <Text style={styles.loginButtonText}>Log in</Text>
                 </TouchableOpacity>
 
                 <View style={styles.or_Button}>
@@ -184,7 +177,3 @@ const styles = StyleSheet.create({
         fontWeight: '500',
     }
 });
-
-// borderStyle: 'solid',
-//     borderColor: '#686868',
-//     borderWidth: 1,

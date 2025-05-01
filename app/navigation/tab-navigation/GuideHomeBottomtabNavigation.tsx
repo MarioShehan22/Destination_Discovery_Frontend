@@ -1,20 +1,22 @@
 import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {createBottomTabNavigator} from "@react-navigation/bottom-tabs/src";
-import HomeGuideScreen from '@/components/ui/screen/home/HomeGuideScreen';
-import HomePageScreen from '@/components/ui/screen/home/HomePageScreen';
 import HomeTourScreen from '@/components/ui/screen/home/HomeTourScreen';
 import HomeLocationScreen from '@/components/ui/screen/home/HomeLocationScreen';
-import HomeBookingScreen from '@/components/ui/screen/home/HomeBookingScreen';
 import {Ionicons} from '@expo/vector-icons';
 import {Color} from '@/constants/Colors';
 import React, {useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import GuideAvailabilityCalendarScreen from "@/components/ui/screen/home/GuideHome/GuideAvaliabilityCalendarScreen";
+import GuideDashboard from "@/components/ui/screen/home/GuideHome/GuideDashboard";
+import {Button} from "react-native-paper";
 
 const Tab = createBottomTabNavigator();
 
-export default function HomeBottomTabNavigation({navigation}: any) {
+export default function GuideHomeBottomTabNavigation({navigation}: any) {
     const [token, setToken] = useState<string | null>(null);
-
+    const [user, setUser] = useState(null);
+    //@ts-ignore
+    const guideName = user?.username; // Use optional chaining
     useEffect(() => {
         const loadToken = async () => {
             const storedToken = await AsyncStorage.getItem('token');
@@ -23,10 +25,24 @@ export default function HomeBottomTabNavigation({navigation}: any) {
         loadToken();
     }, []);
 
+    const fetchUser = async () => {
+        try {
+            const userData = await AsyncStorage.getItem('user');
+            if (userData) {
+                setUser(JSON.parse(userData));
+            }
+        } catch (error) {
+            console.log('Failed to load user:', error);
+        }
+    };
+    useEffect(() => {
+        fetchUser();
+    }, []);
+
     const getTabBarIcon = (routeName: string, focused: boolean, color: string) => {
         const iconSize = 20;
         const icons: {[key: string]: string} = {
-            Book: focused ? 'book' : 'book-outline',
+            Book: focused ? 'calendar' : 'calendar-outline',
             Location: focused ? 'location' : 'location-outline',
             Home: focused ? 'home' : 'home-outline',
             Tour: focused ? 'car' : 'car-outline',
@@ -48,7 +64,7 @@ export default function HomeBottomTabNavigation({navigation}: any) {
             {/* Tab Screens */}
             <Tab.Screen
                 name="Book"
-                component={HomeBookingScreen}
+                component={GuideAvailabilityCalendarScreen}
                 options={{
                     headerLeft: () => (
                         <View style={styles.header}>
@@ -61,33 +77,27 @@ export default function HomeBottomTabNavigation({navigation}: any) {
             <Tab.Screen name="Location" component={HomeLocationScreen} />
             <Tab.Screen
                 name="Home"
-                component={HomePageScreen}
+                component={GuideDashboard}
                 options={{
                     headerLeft: () => (
                         <View style={styles.headerLeftContainer}>
                             <Text style={styles.greetingText}>
-                                Hi, <Text style={styles.userName}>David</Text>{' '}
+                                Hi, <Text style={styles.userName}>{guideName}</Text>{' '}
                                 <Text style={styles.waveEmoji}>👋</Text>
                             </Text>
                         </View>
                     ),
                     headerTitle: '',
                     headerRight: () => (
-                        <View style={styles.headerRightContainer}>
-                            <TouchableOpacity
-                                style={styles.profileAvatarContainer}
-                                onPress={() => navigation.navigate(token ? 'TouristProfile' : 'Login')}>
-                                <Image
-                                    source={require('../../../assets/images/avatar/image 1.png')}
-                                    style={styles.profileAvatar}
-                                />
-                            </TouchableOpacity>
-                        </View>
+                        <Button style={styles.headerRightContainer}
+                                onPress={() => navigation.navigate('GuideLogin')}>
+                            Login
+                        </Button>
                     ),
                 }}
             />
             <Tab.Screen name="Tour" component={HomeTourScreen} />
-            <Tab.Screen name="Guide" component={HomeGuideScreen} />
+            {/*<Tab.Screen name="Guide" component={Guide} />*/}
         </Tab.Navigator>
     );
 }

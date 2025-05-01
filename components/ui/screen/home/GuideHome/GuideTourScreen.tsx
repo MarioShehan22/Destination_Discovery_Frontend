@@ -1,36 +1,55 @@
-import {ScrollView, StyleSheet, View} from "react-native";
 import {useEffect, useState} from "react";
+import {View, Text, StyleSheet, ScrollView, FlatList} from "react-native";
 import {Searchbar} from "react-native-paper";
 import DisplayTypeWidget from "@/components/ui/screen/share/DisplayTypeWidget";
-import LocationListViewWidget from "@/components/ui/screen/home/widget/LocationListViewWidget";
-import LocationGridViewWidget from "@/components/ui/screen/home/widget/LocationGridViewWidget";
+import TourGridViewWidget from "@/components/ui/screen/home/widget/TourGridViewWidget";
+import TourListViewWidget from "@/components/ui/screen/home/widget/TourListViewWidget";
 import AxiosInstance from "@/constants/AxiosInstance";
 import getBaseUrl from "@/constants/BASEURL";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-export default function HomeLocationScreen({navigation}:any) {
+export default function HomeTourScreen({navigation}:any) {
     const [searchQuery, setSearchQuery] = useState('');
     const [isGridEnabled, setIsGridEnabled] = useState(true);
-    const [locations, setLocations] = useState([]);
+    const [tours, setTours] = useState([]);
+    const [user, setUser] = useState(null);
+    //@ts-ignore
+    const guideId = user._id;
 
-    const fetchAllLocations = async () => {
+    const fetchUser = async () => {
         try {
-            const response = await AxiosInstance.get(`${getBaseUrl()}location/find-all?page=1&size=3`);
-            console.log(response.data.data.data); // Log the entire array
-            setLocations(response.data.data.data); // Set the entire array
+            const userData = await AsyncStorage.getItem('user');
+            if (userData) {
+                setUser(JSON.parse(userData));
+            }
+        } catch (error) {
+            console.log('Failed to load user:', error);
+        }
+    };
+    useEffect(() => {
+        fetchUser()
+    }, []);
+
+    const fetchAllTours = async () => {
+        try {
+            console.log(guideId);
+            const response = await AxiosInstance.get(`tours/find-By-Guide-id/${guideId}`);
+            //console.log('API response:', response.data.data);
+            setTours(response.data.data); // Set the entire array
         } catch (e) {
             console.log(e);
         }
     };
 
     useEffect(() => {
-        fetchAllLocations();
+        fetchAllTours();
     }, []);
     return(
         <View style={styles.container}>
             <View style={styles.filter}>
                 <Searchbar
                     style={styles.searchbar}
-                    placeholder="Search Location"
+                    placeholder="Search Tour"
                     onChangeText={setSearchQuery}
                     value={searchQuery}
                 />
@@ -40,24 +59,22 @@ export default function HomeLocationScreen({navigation}:any) {
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                 >
-                    {locations?.map((data,index)=>(
-                        <LocationGridViewWidget key={index} data={data} navigation={navigation}/>
+                    {tours?.map((data,index)=>(
+                        <TourGridViewWidget key={index} data={data} navigation={navigation}/>
                     ))}
-                    {/*<LocationGridViewWidget navigation={navigation} data={data}/>*/}
                 </ScrollView>
             ):(
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                 >
-                    {locations?.map((data,index)=>(
-                        <LocationListViewWidget key={index} data={data} navigation={navigation}/>
+                    {tours?.map((data,index)=>(
+                        <TourListViewWidget key={index} data={data} navigation={navigation}/>
                     ))}
                 </ScrollView>
             )}
         </View>
     )
 }
-
 const styles = StyleSheet.create({
     searchbar:{
         width: '65%',

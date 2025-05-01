@@ -1,20 +1,36 @@
-import {ScrollView, StyleSheet, View} from "react-native";
-import {useState} from "react";
+import {useEffect, useState} from "react";
+import {View, Text, StyleSheet, ScrollView, FlatList} from "react-native";
 import {Searchbar} from "react-native-paper";
 import DisplayTypeWidget from "@/components/ui/screen/share/DisplayTypeWidget";
-import GuideGridViewWidget from "@/components/ui/screen/home/widget/GuideGridViewWidget";
-import GuideListViewWidget from "@/components/ui/screen/home/widget/GuideListViewWidget";
+import TourGridViewWidget from "@/components/ui/screen/home/widget/TourGridViewWidget";
+import TourListViewWidget from "@/components/ui/screen/home/widget/TourListViewWidget";
+import AxiosInstance from "@/constants/AxiosInstance";
+import getBaseUrl from "@/constants/BASEURL";
 
-export default function HomeGuideScreen({navigation}:any) {
+export default function HomeTourScreen({navigation}:any) {
     const [searchQuery, setSearchQuery] = useState('');
     const [isGridEnabled, setIsGridEnabled] = useState(true);
+    const [tours, setTours] = useState([]);
 
+    const fetchAllTours = async () => {
+        try {
+            const response = await AxiosInstance.get(`${getBaseUrl()}tours/find-all`);
+            //console.log('API response:', response.data.data);
+            setTours(response.data.data); // Set the entire array
+        } catch (e) {
+            console.log(e);
+        }
+    };
+
+    useEffect(() => {
+        fetchAllTours();
+    }, []);
     return(
         <View style={styles.container}>
             <View style={styles.filter}>
                 <Searchbar
                     style={styles.searchbar}
-                    placeholder="Search Guide"
+                    placeholder="Search Tour"
                     onChangeText={setSearchQuery}
                     value={searchQuery}
                 />
@@ -24,15 +40,17 @@ export default function HomeGuideScreen({navigation}:any) {
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                 >
-                    <GuideGridViewWidget navigation={navigation}/>
-                    <GuideGridViewWidget navigation={navigation}/>
-                    <GuideGridViewWidget navigation={navigation}/>
+                    {tours?.map((data,index)=>(
+                        <TourGridViewWidget key={index} data={data} navigation={navigation}/>
+                    ))}
                 </ScrollView>
             ):(
                 <ScrollView
                     showsVerticalScrollIndicator={false}
                 >
-                    <GuideListViewWidget navigation={navigation}/>
+                    {tours?.map((data,index)=>(
+                        <TourListViewWidget key={index} data={data} navigation={navigation}/>
+                    ))}
                 </ScrollView>
             )}
         </View>

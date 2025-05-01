@@ -2,47 +2,97 @@ import {useState} from "react";
 import {Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Icon, TextInput} from "react-native-paper";
 import {Color} from "@/constants/Colors";
-
-const logo = require('../../../../assets/images/logo/logo.png');
+// @ts-ignore
+import logo from '../../../../assets/images/logo/logo.png';
+import axios from "axios";
+import getBaseUrl from "@/constants/BASEURL";
 
 export default function SignUpScreen({navigation}:any) {
     const [email, setEmail] = useState('');
-    const [passwordDisplayState, setPasswordDisplayState] = useState(false);
+    const [passwordVisible, setPasswordVisible] = useState(false);
     const [password, setPassword] = useState('');
     const [displayName, setDisplayName] = useState('');
+
+    const handleSignUp = async () => {
+        try {
+            const response = await axios.post(`${getBaseUrl()}users/signIn`, {
+                email,
+                password,
+                username:displayName,
+                role:"Tourist"
+            });
+            if(response.status===201){
+                navigation.navigate('Login');
+            }else{
+                console.log(response.data);
+            }
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
     return (
         <ScrollView style={styles.container}>
             <View style={styles.logoWrapper}>
+                <Text style={styles.headerText}>Sign Up</Text>
                 <Image source={logo} style={styles.logo} resizeMode={'contain'}/>
             </View>
             <View style={styles.inputOuter}>
                 <View style={styles.formGroup}>
                     <TextInput
                         label="Email"
+                        left={<TextInput.Icon icon="email-outline" />}
+                        mode='outlined'
+                        style={styles.input}
+                        activeUnderlineColor="transparent"
+                        underlineColor="transparent"
+                        contentStyle={styles.inputContent}
                         value={email}
                         onChangeText={(text) => setEmail(text)}
                     />
                 </View>
                 <View style={styles.formGroup}>
                     <TextInput
-                        label="Password"
-                        secureTextEntry={!passwordDisplayState}
                         value={password}
-                        onChangeText={(text) => setPassword(text)}
-                        right={<TextInput.Icon onPress={() => {
-                            setPasswordDisplayState(!passwordDisplayState)
-                        }} size={20} icon={passwordDisplayState ? 'eye' : 'eye-off'}/>}
+                        onChangeText={setPassword}
+                        label="Password"
+                        left={<TextInput.Icon icon="lock-outline" />}
+                        secureTextEntry={!passwordVisible}
+                        mode='outlined'
+                        style={styles.input}
+                        underlineColor="transparent"
+                        activeUnderlineColor="transparent"
+                        contentStyle={styles.inputContent}
+                        right={
+                            <TextInput.Icon
+                                icon={passwordVisible ? 'eye-off' : 'eye'}
+                                onPress={() => setPasswordVisible(!passwordVisible)}
+                                color="#888"
+                                size={20}
+                            />
+                        }
                     />
                 </View>
                 <View style={styles.formGroup}>
                     <TextInput
+                        left={<TextInput.Icon icon="account-outline" />}
+                        mode='outlined'
+                        style={styles.input}
+                        activeUnderlineColor="transparent"
+                        underlineColor="transparent"
+                        contentStyle={styles.inputContent}
                         label="User name"
                         value={displayName}
                         onChangeText={(text) => setDisplayName(text)}
                     />
                 </View>
-                <TouchableOpacity style={styles.loginButton}>
-                    <Text style={styles.loginText}>Sign Up</Text>
+                <TouchableOpacity style={styles.loginButton}
+                                  onPress={()=>{handleSignUp()}}
+                >
+                    <Text
+                        style={styles.loginText}>
+                        Sign Up
+                    </Text>
                 </TouchableOpacity>
                 <Text style={styles.separateText}>OR</Text>
                 <View style={styles.socialLoginWrapper}>
@@ -60,13 +110,19 @@ export default function SignUpScreen({navigation}:any) {
                     </TouchableOpacity>
                 </View>
                 <TouchableOpacity style={{...styles.loginButton,backgroundColor:Color.primary}}>
-                    <Text style={styles.loginText} onPress={()=>{navigation.navigate('Login')}}>Already have an Account</Text>
+                    <Text style={styles.loginText}>Already have an Account</Text>
                 </TouchableOpacity>
             </View>
         </ScrollView>
     );
 }
 const styles = StyleSheet.create({
+    headerText: {
+        fontSize: 28,
+        fontWeight: 'bold',
+        marginBottom: 30,
+        color: '#222'
+    },
     loginText: {
         color: Color.light
     },
@@ -96,6 +152,17 @@ const styles = StyleSheet.create({
     },
     inputOuter: {
         marginTop: 50,
+    },
+    input: {
+        flex: 1,
+        backgroundColor: 'transparent',
+        height: 40,
+        padding: 0,
+        justifyContent: 'center',
+    },
+    inputContent: {
+        paddingLeft: 0,
+        paddingRight: 0,
     },
     iconOuter: {
         backgroundColor: Color.darkGray,

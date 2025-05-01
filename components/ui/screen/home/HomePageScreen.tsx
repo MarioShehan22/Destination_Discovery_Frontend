@@ -1,11 +1,7 @@
-import { StyleSheet, View, Text, Image, TouchableOpacity, ScrollView, Dimensions } from "react-native";
-import { Searchbar } from "react-native-paper";
-import { useState } from "react";
-import { MaterialIcons } from "@expo/vector-icons";
+import {StyleSheet, View, Text, Image, TouchableOpacity, ScrollView, Dimensions, TextInput} from "react-native";
+import React, { useState } from "react";
 import PlacesCarousel from "@/components/ui/screen/share/PlacesCarousel"; // Make sure to install expo icons
 
-// Get device width for better responsiveness
-const { width } = Dimensions.get('window');
 
 export default function HomePageScreen({ navigation }: any) {
     const [searchQuery, setSearchQuery] = useState('');
@@ -26,13 +22,14 @@ export default function HomePageScreen({ navigation }: any) {
                     <Text style={styles.viewAllText}>View all</Text>
                 </TouchableOpacity>
             </View>
-            <Searchbar
-                placeholder="Search places"
-                onChangeText={setSearchQuery}
-                value={searchQuery}
-                style={styles.searchBar}
-                iconColor="#666"
-            />
+            <View style={styles.searchBar}>
+                <TextInput
+                    placeholder="Search places"
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    style={styles.searchInput}
+                />
+            </View>
             {/* Filter Buttons */}
             <View style={styles.filterContainer}>
                 {filters.map((filter) => (
@@ -72,13 +69,6 @@ const styles = StyleSheet.create({
         color: '#333',
         marginBottom: 16,
     },
-    searchBar: {
-        marginBottom: 16,
-        elevation: 0,
-        backgroundColor: '#f0f0f0',
-        borderRadius: 25,
-        height: 48,
-    },
     headerRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -115,5 +105,6 @@ const styles = StyleSheet.create({
     activeFilterText: {
         color: '#fff',
     },
-
+    searchBar: { marginBottom: 16 },
+    searchInput: { backgroundColor: '#f3f3f3', borderRadius: 12, padding: 12, fontSize: 16 },
 });
